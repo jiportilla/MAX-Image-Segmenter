@@ -5,7 +5,7 @@ set -m
 
 echo 'starting'
 
-# Start the primary process (http server) and put it in the background
+# Start the primary process (python flask server) and put it in the background
 ./ppython.sh &
 #python workspace/app.py &
 
