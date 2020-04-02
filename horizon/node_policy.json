@@ -1,0 +1,11 @@
+{
+  "properties": [
+    {
+       "name": "sensor",
+       "value": "camera"
+      }
+  ],
+  "constraints": [
+	"location == office"
+  ]
+}

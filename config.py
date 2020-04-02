@@ -42,4 +42,6 @@ MODEL_META_DATA = {
 }
 
 _FULL_MODEL_PATH = "assets/frozen_inference_graph_full.pb"
-_MOBILE_MODEL_PATH = "assets/frozen_inference_graph_mobile.pb"
+#Edge update
+_MOBILE_MODEL_PATH = "assets/frozen_inference_graph_mms.pb"
+#_MOBILE_MODEL_PATH = "assets/frozen_inference_graph_mobile.pb"

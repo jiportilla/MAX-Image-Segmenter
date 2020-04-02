@@ -1,0 +1,8 @@
+{
+    "HZN_ORG_ID": "devcluster",
+    "MetadataVars": {
+        "DOCKER_IMAGE_BASE": "iportilla/image.segmenter-mms",
+        "SERVICE_NAME": "image.segmenter-mms",
+        "SERVICE_VERSION": "1.0.0"
+    }
+}
