@@ -74,7 +74,7 @@ build-all-arches:
 
   # target to publish new ML model file to mms
 publish-mms-object:
-	hzn mms object publish -m mms/object.json -f mms/index.js
+	hzn mms object publish -m mms/object.json -f mms/frozen_inference_graph_mms.pb
 
   # target to list mms object
 list-mms-object:

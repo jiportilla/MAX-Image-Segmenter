@@ -18,7 +18,7 @@ RUN pip install -r requirements.txt
 COPY . /workspace
 
 #Edge update
-COPY mms/frozen_inference_graph_mms.pb /workspace/assets/
+COPY frozen_inference_graph_mms.pb /workspace/assets/
 
 RUN if [ "$use_pre_trained_model" = "true" ] ; then \
       # validate downloaded pre-trained model assets
@@ -32,4 +32,16 @@ RUN if [ "$use_pre_trained_model" = "true" ] ; then \
 
 EXPOSE 5000
 
-CMD python /workspace/app.py
+#Edge update
+# Install packages.
+RUN apt-get update && \
+    apt-get install -y wget curl bash  && \
+    rm -rf /var/lib/apt/lists/*
+# Install xml-to-json
+WORKDIR /bin
+RUN wget "http://stedolan.github.io/jq/download/linux64/jq" && chmod 755 jq
+WORKDIR /workspace
+RUN chmod +x ./*.sh
+CMD ["./start.sh"]
+
+#CMD python /workspace/app.py
