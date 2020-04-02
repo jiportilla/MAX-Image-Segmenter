@@ -19,7 +19,7 @@ PORT_NUM ?=5000
 DOCKER_NAME ?=image.segmenter-mms
 OBJECT_TYPE ?=model
 ## todo update model name, object id
-OBJECT_ID ?=index.js
+OBJECT_ID ?=frozen_inference_graph_mms.pb
 BUSINESS_POLICY_NAME ?=$(SERVICE_NAME).bp 
 
 
@@ -74,7 +74,7 @@ build-all-arches:
 
   # target to publish new ML model file to mms
 publish-mms-object:
-	hzn mms object publish -m mms/object.json -f mms/frozen_inference_graph_mms.pb
+	hzn mms object publish -m mms/object.json -f mms/$(OBJECT_ID)
 
   # target to list mms object
 list-mms-object:
