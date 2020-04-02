@@ -6,7 +6,7 @@ set -m
 echo 'starting'
 
 # Start the primary process (python flask server) and put it in the background
-./ppython.sh &
+./cmd_python.sh &
 #python workspace/app.py &
 
 # Start the helper process (ESS pull service)
