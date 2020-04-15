@@ -3,14 +3,9 @@
   "objectType": "model",
   "destinationOrgID": "$HZN_ORG_ID",
   "destinationPolicy": {
-    "properties": [
-      {
-       "name": "location",
-       "value": "office"
-      }
-    ],
+    "properties": [],
     "constraints": [
-        "sensor == camera"
+        "location == classroom"
      ],
     "services": [
        {
