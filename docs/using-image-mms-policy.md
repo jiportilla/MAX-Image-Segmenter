@@ -68,7 +68,7 @@ sudo docker ps
 
 
 
-8. Open the python demo notebook at:
+8. Open the python demo notebook, for example at:
 
 http://localhost:8888/notebooks/Downloads/MAX-Image-Segmenter-master/demo.ipynb
 
@@ -77,7 +77,7 @@ http://localhost:8888/notebooks/Downloads/MAX-Image-Segmenter-master/demo.ipynb
 ![MMS Example page](dog_cow.png)
 
 
-10. Notice the difference in the model results between the two example pictures, you will observe less precision in pictures with multiple objects. Let's see how to update the ML model running on the edge node using the MMS.
+10. Notice the difference in the model results, you will observe less precision in pictures with multiple objects. Let's see how to update the ML model running on the edge node using the MMS.
 
 
 11. Before publishing the new ML model,  review the `metadata` file provided to update ML models using MMS publish capabilities
@@ -123,7 +123,7 @@ hzn mms object list -t pb -i frozen_inference_graph_mms.pb -d
 
 A few seconds after the `status` field changes to `delivered` you will see changes in the image detected:
 
-![MMS Example page](dog_cow.png)
+![MMS Example page](dog-cow-new.png)
 
 
 
