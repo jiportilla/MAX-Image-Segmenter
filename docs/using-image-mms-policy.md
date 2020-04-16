@@ -67,15 +67,17 @@ sudo docker ps
 7. Open Chrome and navigate to `HTTP://HOSTNAME:5000` where `HOSTNAME`=Node Host Name or IP address
 
 
-8. Open the Web Console in `More Tools \ Developer tools`
 
-![MMS Example page](tools.png)
+8. Open the python demo notebook at:
 
-9. After a few seconds, you will see a message indicating the initial model was load, click on the picture or `Toggle image` button to see the Image analysis results
+http://localhost:8888/notebooks/Downloads/MAX-Image-Segmenter-master/demo.ipynb
+
+9. After a few seconds, follow the instructions on the notebook, you will see results like:
+
+![MMS Example page](dog_cow.png)
+
 
 10. Notice the difference in the model results between the two example pictures, you will observe less precision in pictures with multiple objects. Let's see how to update the ML model running on the edge node using the MMS.
-
-![MMS Example console](mobilenet.png)
 
 
 11. Before publishing the new ML model,  review the `metadata` file provided to update ML models using MMS publish capabilities
@@ -119,18 +121,10 @@ hzn mms object publish -m mms/object.json -f mms/frozen_inference_graph_mms.pb
 hzn mms object list -t pb -i frozen_inference_graph_mms.pb -d
 ```
 
-A few seconds after the `status` field changes to `delivered` you will see in the console the output of the image detection service change from 
+A few seconds after the `status` field changes to `delivered` you will see changes in the image detected:
 
-**loading mobilenet ...**
+![MMS Example page](dog_cow.png)
 
-to 
-
-**Loading cocoSSD ...**
-
-
-14. Next, test both images, you will observe better results in images with multiple objects:
-
-![MMS Example console after](cocoSSD.png)
 
 
 Optional:
