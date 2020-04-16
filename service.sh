@@ -49,16 +49,16 @@ cp $PATH_TO_MODEL/frozen_inference_graph_mobile.pb $PATH_TO_MODEL/frozen_inferen
 while true; do
 
     # See if there is a new version of the config.json file
-    #echo "DEBUG: Checking for MMS updates"
+    echo "DEBUG: Checking for MMS updates"
     #HTTP_CODE=$(curl -sSLw "%{http_code}" -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID)  # not using this because it would result in getting the object metadata every call, even if it hasn't been updated
     HTTP_CODE=$(curl -sSLw "%{http_code}" -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE)  # will only get changes that we haven't acknowledged (see below)
     if [[ "$HTTP_CODE" != '200' && "$HTTP_CODE" != '404' ]]; then echo "Error: HTTP code $HTTP_CODE from: curl -sSLw %{http_code} -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE"; fi
-    #echo "DEBUG: MMS metadata=$(cat objects.meta)"
+    echo "DEBUG *** : MMS metadata=$(cat objects.meta)"
     # objects.meta is a json array of all MMS files of OBJECT_TYPE that have been updated. Search for the ID we are interested in
     OBJ_ID=$(jq -r ".[] | select(.objectID == \"$OBJECT_ID\") | .objectID" objects.meta)  # if not found, jq returns 0 exit code, but blank value
 
     if [[ "$HTTP_CODE" == '200' && "$OBJ_ID" == $OBJECT_ID ]]; then
-        #echo "DEBUG: Received new metadata for $OBJ_ID"
+        echo "DEBUG *** : Received new metadata for $OBJ_ID"
 
         # Handle the case in which MMS is telling us the config file was deleted
         DELETED=$(jq -r ".[] | select(.objectID == \"$OBJECT_ID\") | .deleted" objects.meta)  # if not found, jq returns 0 exit code, but blank value
