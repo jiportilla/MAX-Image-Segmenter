@@ -58,7 +58,7 @@ sudo apt install -y git jq make
 
 ```bash
 cd ~   # or wherever you want
-git clone https://github.com/jiportilla/img-MMS.git
+git clone https://github.com/jiportilla/MAX-Image-Segmenter.git
 cd ~/img-MMS/
 ```
 
@@ -75,10 +75,10 @@ eval $(hzn util configconv -f horizon/hzn.json)
 make build
 ```
 
-For example, when using the default values provided in this demo [hnz.json](https://raw.githubusercontent.com/jiportilla/img-MMS/master/horizon/hzn.json) configuration file:
+For example, when using the default values provided in this demo [hnz.json](https://raw.githubusercontent.com/jiportilla/MAX-Image-Segmenter/master/horizon/hzn.json) configuration file:
 
 ```bash
-docker build -t iportilla/image.demo-mms_amd64:1.0.0 -f ./Dockerfile.amd64 .
+docker build -t iportilla/image.segmenter-mms_amd64:1.0.0 -f ./Dockerfile.amd64 .
 ```
 
 3. You are now ready to publish your edge service, so that it can be deployed to real edge nodes. Instruct Horizon to push your docker image to your registry and publish your service in the Horizon Exchange:
@@ -116,7 +116,7 @@ The Horizon Policy mechanism offers an alternative to using Deployment Patterns.
     },
     {
       "name": "location",
-      "value": "storage"
+      "value": "classroom"
     }
   ],
   "constraints": []
@@ -159,14 +159,14 @@ make publish-service-policy
 ```
 For example:
 ```bash
-hzn exchange service addpolicy -f horizon/service_policy.json image.demo-mms_1.0.0_amd64
+hzn exchange service addpolicy -f horizon/service_policy.json image.segmenter-mms_1.0.0_amd64
 
 ```
 
-4. View the pubished service policy attached to `image.demo-mms` edge service:
+4. View the pubished service policy attached to `image.segmenter-mms` edge service:
 
 ```bash
-hzn exchange service listpolicy image.demo-mms_1.0.0_amd64
+hzn exchange service listpolicy image.segmenter-mms_1.0.0_amd64
 ```
 
 - Notice that Horizon has again automatically added some additional `properties` to your Policy. These generated property values can be used in `constraints` in Node Policies and Business Policies.
@@ -199,7 +199,7 @@ Business Policy, like the other two Policy types, contains a set of `properties`
   },
   "properties": [],
   "constraints": [
-        "location == backyard"
+        "location == classroom"
   ],
   "userInput": [
     {
@@ -233,14 +233,14 @@ make publish-business-policy
 
 For example:
 ```bash
-hzn exchange business addpolicy -f horizon/business_policy.json image.demo-mms.bp
+hzn exchange business addpolicy -f horizon/business_policy.json image.segmenter-mms.bp
 
 ```
 
 4. Verify the business policy:
 
 ```bash
-hzn exchange business listpolicy image.demo-mms.bp
+hzn exchange business listpolicy image.segmenter-mms.bp
 ```
 - The results should look very similar to your original `business_policy.json` file, except that `owner`, `created`, and `lastUpdated` and a few other fields have been added.
 
