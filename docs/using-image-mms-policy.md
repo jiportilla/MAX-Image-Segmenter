@@ -13,7 +13,7 @@ Make sure you have completed the [precondition](https://github.com/jiportilla/im
     },
     {
       "name": "location",
-      "value": "storage"
+      "value": "classroom"
     }
   ],
   "constraints": []
@@ -56,7 +56,7 @@ sudo docker ps
 ```
 
 
-6. See the `image.demo-mms` service output:
+6. See the `image.segmenter-mms` service output:
 
   on **Linux**:
 
@@ -64,7 +64,7 @@ sudo docker ps
   sudo tail -f /var/log/syslog | grep DEBUG
   ```
 
-7. Open Chrome and navigate to `HTTP://HOSTNAME:9080` where `HOSTNAME`=Node Host Name or IP address
+7. Open Chrome and navigate to `HTTP://HOSTNAME:5000` where `HOSTNAME`=Node Host Name or IP address
 
 
 8. Open the Web Console in `More Tools \ Developer tools`
@@ -86,12 +86,12 @@ sudo docker ps
 ```json
 {
   "objectID": "index.js",
-  "objectType": "model",
+  "objectType": "pb",
   "destinationOrgID": "$HZN_ORG_ID",
   "destinationPolicy": {
     "properties": [],
     "constraints": [
-        "location == backyard"
+        "location == classroom"
      ],
     "services": [
        {
@@ -109,14 +109,14 @@ sudo docker ps
 }
 ```
 
-12. Publish the `mms/index.js` file as a new MMS object to update the existing ML model with:
+12. Publish the `mms/frozen_inference_graph_mms.pb` file as a new MMS object to update the existing ML model with:
 ```bash
-hzn mms object publish -m mms/object.json -f mms/index.js
+hzn mms object publish -m mms/object.json -f mms/frozen_inference_graph_mms.pb
 ```
 
 13. View the published MMS object:
 ```bash
-hzn mms object list -t model -i index.js -d
+hzn mms object list -t pb -i frozen_inference_graph_mms.pb -d
 ```
 
 A few seconds after the `status` field changes to `delivered` you will see in the console the output of the image detection service change from 
@@ -137,10 +137,10 @@ Optional:
 
 15. Delete the published mms object with:
 ```bash
-hzn mms object delete -t model --id index.js
+hzn mms object delete -t pb --id frozen_inference_graph_mms.pb
 ```
 
-16. Unregister your edge node, which will also stop the `image.demo-mms` service:
+16. Unregister your edge node, which will also stop the `image.segmenter-mms` service:
 
 ```bash
 hzn unregister
@@ -149,13 +149,13 @@ hzn unregister
 17. Remove the business policy:
 
 ```bash
-hzn exchange business removepolicy image.demo-mms.bp
+hzn exchange business removepolicy image.segmenter-mms.bp
 ```
 
 18. Remove the service policy:
 
 ```bash
-hzn exchange service removepolicy image.demo-mms_1.0.0_amd64
+hzn exchange service removepolicy image.segmenter-mms_1.0.0_amd64
 ```
 See more details at:
 [More MMS Details](mms-details.md)
