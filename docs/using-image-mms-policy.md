@@ -74,7 +74,7 @@ http://localhost:8888/notebooks/Downloads/MAX-Image-Segmenter-master/demo.ipynb
 
 9. After a few seconds, follow the instructions on the notebook, you will see results like:
 
-![MMS Example page](dog_cow.png)
+![MMS Example page](dog-cow-before.png)
 
 
 10. Notice the difference in the model results, you will observe less precision in pictures with multiple objects. Let's see how to update the ML model running on the edge node using the MMS.
