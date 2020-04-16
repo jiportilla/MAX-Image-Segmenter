@@ -1,68 +1,102 @@
 #!/bin/bash
 
-# Very simple Horizon ML example using HZN MMS  to update ML model (index.js)
-# The ML model
-OBJECT_ID=frozen_inference_graph_mms.pb
-TEMP_DIR='/tmp'
-DESTINATION_PATH=${TEMP_DIR}/${OBJECT_ID}
+# A simple Horizon sample edge service that shows how to use a Model Management System (MMS) file with your service.
+# In this case we use a MMS file as a config file for this service that can be updated dynamically. The service has a default
+# copy of the config file built into the docker image. Once the service starts up it periodically checks for a new version of
+# the config file using the local MMS API (aka ESS) that the Horizon agent provides to services. If an updated config file is
+# found, it is loaded into the service and the config parameters applied (in this case who to say hello to).
+
+# Of course, MMS can also hold and deliver inference models, which can be used by services in a similar way.
+
+function kill_python_program () {
+        echo "PROCESS: Received new model from the MMS..."
+        PGID=`ps x -o "%p %r" | grep "$PROCESS " | awk '{print $2}'`
+        kill -9 -- -$PGID
+
+}
+
+function start_python_program () {
+	python /opt/DNN/bin/deploy_zipped_model.pyc --gpu 0 & PROCESS=$! 
+	echo "PROCESS: This is the python program PID: $PROCESS"
+	echo "PROCESS: Running. You may begin inferencing shortly..."
+}
+start_python_program
+
+
+# The type and name of the MMS file we are using
 OBJECT_TYPE=model
-#OBJECT_TYPE=js
-HT_DOCS=/workspace/assets
-RUN_TIME=10
+#OBJECT_ID=config.json
+OBJECT_ID=frozen_inference_graph_mobile.pb
+PATH_TO_MODEL=/workspace/assets
 
-echo "DEBUG: ****   Started pulling ESS ..."
-
-# ${HZN_ESS_AUTH} is mounted to this container and contains a json file with the credentials for authenticating to the ESS.
+# ${HZN_ESS_AUTH} is mounted to this container by the Horizon agent and is a json file with the credentials for authenticating to ESS.
+# ESS (Edge Sync Service) is a proxy to MMS that runs in the Horizon agent.
 USER=$(cat ${HZN_ESS_AUTH} | jq -r ".id")
 PW=$(cat ${HZN_ESS_AUTH} | jq -r ".token")
 
-# Passing basic auth creds in base64 encoded form (-u).
-AUTH="-u ${USER}:${PW} "
+# Some curl parameters for using the ESS REST API
+AUTH="-u ${USER}:${PW}"
+# ${HZN_ESS_CERT} is mounted to this container by the Horizon agent and the cert clients use to verify the identity of ESS.
+CERT="--cacert ${HZN_ESS_CERT}"
+SOCKET="--unix-socket ${HZN_ESS_API_ADDRESS}"
+BASEURL='https://localhost/api/v1/objects'
 
-# ${HZN_ESS_CERT} is mounted to this container and contains the client side SSL cert to talk to the ESS API.
-CERT="--cacert ${HZN_ESS_CERT} "
+# Save original config file that came from the docker image so we can revert back to it if the MMS file is deleted
+#cp $PATH_TO_MODEL/$OBJECT_ID $PATH_TO_MODEL/${OBJECT_ID}.original
+cp $PATH_TO_MODEL/frozen_inference_graph_mobile.pb $PATH_TO_MODEL/frozen_inference_graph_mobile.pb.original
 
-BASEURL='--unix-socket '${HZN_ESS_API_ADDRESS}' https://localhost/api/v1/objects/'
-echo "DEBUG: ****   auth, cert, baseURL: ${AUTH}${CERT}${BASEURL} ..."
-
-# Helper functions to check a valid model file has been pulled from ESS
-hasData() {
-   afilesize=$(wc -c "/tmp/index.js" | awk '{print $1}')
-   if (($afilesize > 100 ))#It is a valid model
-   then
-	echo 'DEBUG: ****   New valid model file was found in ESS'
-	cp ${DESTINATION_PATH} ${HT_DOCS}/${OBJECT_ID}
-        echo 'DEBUG: ****   ESS Model updated ...'
-   else
-	echo 'DEBUG: ****   ESS Model NOT updated ...'
-   fi
-}
-
-noData() {
-	echo "DEBUG: ****   ESS Model file exists but it is empty ..."
-}
-
-checkUpdates() {
-	for f in $TEMP_DIR/*
-	do
-        echo "DEBUG: ****   Processing FILE ..."
-  	if [ -s $f ]
-
-  	then
-    		hasData
-  	else
-    		noData
-  	fi
-	done
-}
-
+# Repeatedly check to see if an updated config.json was delivered via MMS/ESS, then use the value within it to echo hello
 while true; do
-    echo "DEBUG: ****   $HZN_DEVICE_ID is pulling ESS ..."
-    sleep  10
 
-    # read in new file from the ESS to a temporary location
-    DATA=$(curl -sL -o ${DESTINATION_PATH} ${AUTH}${CERT}${BASEURL}${OBJECT_TYPE}/${OBJECT_ID}/data)
+    # See if there is a new version of the config.json file
+    #echo "DEBUG: Checking for MMS updates"
+    #HTTP_CODE=$(curl -sSLw "%{http_code}" -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID)  # not using this because it would result in getting the object metadata every call, even if it hasn't been updated
+    HTTP_CODE=$(curl -sSLw "%{http_code}" -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE)  # will only get changes that we haven't acknowledged (see below)
+    if [[ "$HTTP_CODE" != '200' && "$HTTP_CODE" != '404' ]]; then echo "Error: HTTP code $HTTP_CODE from: curl -sSLw %{http_code} -o objects.meta ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE"; fi
+    #echo "DEBUG: MMS metadata=$(cat objects.meta)"
+    # objects.meta is a json array of all MMS files of OBJECT_TYPE that have been updated. Search for the ID we are interested in
+    OBJ_ID=$(jq -r ".[] | select(.objectID == \"$OBJECT_ID\") | .objectID" objects.meta)  # if not found, jq returns 0 exit code, but blank value
 
-    #check updates
-    checkUpdates
+    if [[ "$HTTP_CODE" == '200' && "$OBJ_ID" == $OBJECT_ID ]]; then
+        #echo "DEBUG: Received new metadata for $OBJ_ID"
+
+        # Handle the case in which MMS is telling us the config file was deleted
+        DELETED=$(jq -r ".[] | select(.objectID == \"$OBJECT_ID\") | .deleted" objects.meta)  # if not found, jq returns 0 exit code, but blank value
+        if [[ "$DELETED" == "true" ]]; then
+            echo "*** DEBUG *** MMS file $OBJECT_ID was deleted, reverting to original $OBJECT_ID"
+
+            # Acknowledge that we saw that it was deleted, so it won't keep telling us
+            HTTP_CODE=$(curl -sSLw "%{http_code}" -X PUT ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/deleted)
+            if [[ "$HTTP_CODE" != '200' && "$HTTP_CODE" != '204' ]]; then echo "Error: HTTP code $HTTP_CODE from: curl -sSLw %{http_code} -X PUT ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/deleted"; fi
+
+            # Revert back to the original config file from the docker image
+            #cp $PATH_TO_MODEL/${OBJECT_ID}.original $PATH_TO_MODEL/$OBJECT_ID
+	    #cp $PATH_TO_MODEL/model.zip.original $PATH_TO_MODEL/model.zip 
+        
+        else
+            echo "*** DEBUG *** Received new/updated $OBJECT_ID from MMS"
+
+            # Read the new file from MMS
+            HTTP_CODE=$(curl -sSLw "%{http_code}" -o $OBJECT_ID ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/data)
+            if [[ "$HTTP_CODE" != '200' ]]; then echo "Error: HTTP code $HTTP_CODE from: curl -sSLw %{http_code} -o $OBJECT_ID ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/data"; fi
+            #ls -l $OBJECT_ID
+
+	    # move the new model to /config/dropins/
+	    echo "*** DEBUG *** PROCESS: moving new model to /workspace/assets/ "
+	    cp $OBJECT_ID $PATH_TO_MODEL/frozen_inference_graph_mms.pb
+
+	    # kill the current python process and any subprocesses it started 
+	    #kill_python_program 
+
+	    # start the new python program with the new model 
+	    #start_python_program
+	    
+            # Acknowledge that we got the new file, so it won't keep telling us
+            HTTP_CODE=$(curl -sSLw "%{http_code}" -X PUT ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/received)
+            if [[ "$HTTP_CODE" != '200' && "$HTTP_CODE" != '204' ]]; then echo "Error: HTTP code $HTTP_CODE from: curl -sSLw %{http_code} -X PUT ${AUTH} ${CERT} $SOCKET $BASEURL/$OBJECT_TYPE/$OBJECT_ID/received"; fi
+        fi
+    fi
+
+    #sleep 5
+
 done
