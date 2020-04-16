@@ -20,13 +20,13 @@ function start_python_program () {
 	echo "PROCESS: This is the python program PID: $PROCESS"
 	echo "PROCESS: Running. You may begin inferencing shortly..."
 }
-start_python_program
+#start_python_program
 
 
 # The type and name of the MMS file we are using
-OBJECT_TYPE=model
+OBJECT_TYPE=pb
 #OBJECT_ID=config.json
-OBJECT_ID=frozen_inference_graph_mobile.pb
+OBJECT_ID=frozen_inference_graph_mms.pb
 PATH_TO_MODEL=/workspace/assets
 
 # ${HZN_ESS_AUTH} is mounted to this container by the Horizon agent and is a json file with the credentials for authenticating to ESS.

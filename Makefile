@@ -17,7 +17,7 @@ SERVICE_NAME ?=image.segmenter-mms
 SERVICE_VERSION ?=1.0.0
 PORT_NUM ?=5000
 DOCKER_NAME ?=image.segmenter-mms
-OBJECT_TYPE ?=model
+OBJECT_TYPE ?=pb
 ## todo update model name, object id
 OBJECT_ID ?=frozen_inference_graph_mms.pb
 BUSINESS_POLICY_NAME ?=$(SERVICE_NAME).bp 

@@ -1,6 +1,6 @@
 {
   "objectID": "frozen_inference_graph_mms.pb",
-  "objectType": "model",
+  "objectType": "pb",
   "destinationOrgID": "$HZN_ORG_ID",
   "destinationPolicy": {
     "properties": [],
