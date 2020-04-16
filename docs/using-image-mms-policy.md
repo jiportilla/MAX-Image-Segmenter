@@ -1,6 +1,6 @@
 ## <a id=using-image-mms-pattern></a> Using the MMS Example for ML model updates with Deployment Policy
 
-Make sure you have completed the [precondition](https://github.com/jiportilla/img-MMS/blob/master/docs/preconditions.md) steps before starting this section. Particularly verifying that service and deployment policies have been configured and are compatible with this node policy.
+Make sure you have completed the [precondition](https://github.com/jiportilla/MAX-Image-Segmenter/blob/master/docs/preconditions.md) steps before starting this section. Particularly verifying that service and deployment policies have been configured and are compatible with this node policy.
 
 - Below is the `horizon/node_policy.json` file you reviewed earlier:
 
