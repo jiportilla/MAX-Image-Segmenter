@@ -74,7 +74,7 @@ http://localhost:8888/notebooks/Downloads/MAX-Image-Segmenter-master/demo.ipynb
 
 9. After a few seconds, follow the instructions on the notebook, you will see results like:
 
-![MMS Example page](dog-cow-before.png)
+![MMS Example page](stc2.png)
 
 
 10. Notice the difference in the model results, you will observe less precision in pictures with multiple objects. Let's see how to update the ML model running on the edge node using the MMS.
@@ -123,7 +123,7 @@ hzn mms object list -t pb -i frozen_inference_graph_mms.pb -d
 
 A few seconds after the `status` field changes to `delivered` you will see changes in the image detected:
 
-![MMS Example page](dog-cow-new.png)
+![MMS Example page](stc3.png)
 
 
 
